@@ -2,6 +2,4 @@ web3
 flask
 flask-restful
 flask-marshmallow
-solc
-
-
+py-solc
