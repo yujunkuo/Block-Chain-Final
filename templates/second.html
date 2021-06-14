@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <!-- SITE TITTLE -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Classimax</title>
+        
+   
+ 
+        <!-- Bootstrap -->
+        <!-- <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap-slider.css"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/bootstrap/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/bootstrap/css/bootstrap-slider.css') }}">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/font-awesome/css/font-awesome.min.css') }}">
+       
+ 
+        <!-- Fancy Box -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fancybox/jquery.fancybox.pack.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/jquery-nice-select/css/nice-select.css') }}">
+        <!-- CUSTOM CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      
+
+      
+      </head>
+<body class="body-wrapper">
+  
+
+    <!--==================================
+    =            User Profile            =
+    ===================================-->
+    <h1>{{title}}</h1>
+    <section class="dashboard section">
+      <!-- Container Start -->
+      <div class="container">
+        <!-- Row Start -->
+        <div class="row">
+          <div class="col-md-10 offset-md-1 col-lg-4 offset-lg-0">
+            <div class="sidebar">
+    
+              <!-- Dashboard Links -->
+              <div class="widget user-dashboard-menu">
+                <ul>
+                  <li class="active"><i class="fa fa-user" id = "name"></i> 姓名：{{name}}</a></li>
+                  <li><i class="fa fa-file-archive-o" id="major"></i>系：{{major}} </a></li>
+                  <li><i class="fa fa-bolt" id="grade"></i>年級：{{grade}} </a></li>
+                  <li><i class="fa fa-bolt" id="status"></i>就學狀態：{{status}} </a></li>
+                  <li><i class="fa fa-file-archive-o" id="double"></i>雙主修：{{double}} </a></li>
+                  <li><i class="fa fa-file-archive-o" id="minor"></i>輔系：{{minor}} </a></li>
+                  <li><i class="fa fa-file-archive-o" id="program"></i>學程：{{program}} </a></li>
+                  <li><a href = "#" onclick="logout()"><i class="fa fa-cog" id="logout"></i> Logout</a></li>
+             
+                </ul>
+              </div>
+    
+    
+    
+            </div>
+          </div>
+          <div class="col-md-10 offset-md-1 col-lg-8 offset-lg-0">
+            <!-- Recently Favorited -->
+            <div class="widget dashboard-container my-adslist">
+              <h3 class="widget-header">課程</h3>
+              <table class="table table-responsive product-dashboard-table">
+                <thead>
+                  <tr>
+                    <th>狀態</th>
+                    <th>課程名稱</th>
+               
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+    
+                    <td class="product-thumb">
+                      <h3 class="status">未完成</h3>
+                    <td class="product-details">
+                      <h3 class="title">Macbook Pro 15inch</h3>
+                    </td>
+                  
+                  </tr>
+                  <tr>
+    
+                    <td class="product-thumb">
+                      <h3 class="status">未完成</h3>
+                    <td class="product-details">
+                      <h3 class="title">Study Table Combo</h3>
+                    </td>
+                 
+                  </tr>
+                  <tr>
+                    <td class="product-thumb">
+                      <h3 class="status">未完成</h3>
+                    <td class="product-details">
+                      <h3 class="title">Macbook Pro 15inch</h3>
+                    </td>
+                   
+                  </tr>
+                 
+                  
+                </tbody>
+              </table>
+    
+            </div>
+    
+    
+          </div>
+        </div>
+        <!-- Row End -->
+      </div>
+      <!-- Container End -->
+    </section>
+    
+    
+    </body>
+
+<script>
+  function logout(){
+    window.location.href='/';
+  }
+</script>
+</html>
