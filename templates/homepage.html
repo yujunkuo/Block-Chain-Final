@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title> 智能合約修課歷程 - 學生端 </title>
+    <title> 智能合約修課歷程 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -48,39 +48,24 @@
         h1 {
             font-size: 40px;
         }
+
+        .btn_self {
+            font-size: 24px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="header">
-            <h1 class="text-center"><b> 智能合約修課歷程 - 學生端 </b></h1>
+            <h1 class="text-center"><b> 智能合約修課歷程 </b></h1>
         </div>
         <div class="row">
             <div class="col-sm-4">
             </div>
-            <div class="col-sm-4">
-                <form class="" action="/student/login/" method="post">
-                    <div class="form-group">
-                        <label class="input_label"> 帳號 : </label>
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                            <input type="text" class="form-control input-lg" name="student_id" id="student_id" value=""
-                                placeholder="Student ID" required autofocus style="font-family: sans-serif;"><br>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="input_label"> 密碼 : </label>
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                            <input type="password" class="form-control input-lg" name="password" id="password" value=""
-                                placeholder="Password" required style="font-family: sans-serif;"><br>
-                        </div>
-                    </div>
-                    <a type="button" class="btn btn-default btn-lg push-left" href="/"> 回上頁 </a>
-                    <input type="submit" class="btn btn-default btn-lg pull-right" name="" value="登入">
-                    <label class="text-danger"> {{ data.err_msg }} </label>
-                </form>
+            <div class="col-sm-4" style="padding-top: 30px;">
+                <a type="button" class="btn btn-primary btn-lg btn-block btn_self" href="/school/login/"><b> 學校登入 </b></a><br>
+                <a type="button" class="btn btn-info btn-lg btn-block btn_self" href="/student/login/"><b> 學生登入 </b></a>
             </div>
             <div class="col-sm-4">
             </div>

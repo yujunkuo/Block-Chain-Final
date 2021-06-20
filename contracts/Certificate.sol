@@ -21,14 +21,14 @@ contract Certificate {
     // 建構時帶入個人資料
     constructor(string memory name, address account, string memory schoolName, string memory major, string memory minor, uint8 enrollYear) public {
         school = msg.sender;
+        educationStatus = EducationStatus.learning;
         profile = Profile({
             name: name,
             account: account,
             schoolName: schoolName,
             major: major,
             minor: minor,
-            enrollYear: enrollYear,
-            educationStatus: EducationStatus.learning
+            enrollYear: enrollYear
         });
     }
     
@@ -39,9 +39,7 @@ contract Certificate {
         string schoolName; // 學校名稱
         string major; // 主修
         string minor; //輔系
-        uint8 enrollYear; //入學年份
-        EducationStatus educationStatus; //學業狀態
-        
+        uint8 enrollYear; //入學年份 
     }
     
     // 課程結構
@@ -73,7 +71,7 @@ contract Certificate {
     
     // 檢查操作者為在校學生
     modifier checkEducationStatus {
-        require(profile.educationStatus == EducationStatus.learning, "Not student!");
+        require(educationStatus == EducationStatus.learning, "Not student!");
         _;
     }
     
@@ -117,14 +115,34 @@ contract Certificate {
     }
     
     
-    // 檢查是否滿足某證書的條件
+    // 檢查是否滿足某證書的條件 (modifier)
     modifier checkFinish() {
-        require(courses.length > 10, "Not yet finish"); // 這裡的條件可能要討論一下怎麼寫（根據不同系所）
+        require(courses.length > 2, "Not yet finish");
         _;
     }
-    
+
+    // 檢查是否滿足某證書的條件 (function) (暫定為修課數超過三堂就可以畢業)
+    function checkFinishCertificate() public returns(bool){
+        if(courses.length > 2){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // 查看目前學籍狀態
+    function getEducationStatus() public view returns(string memory) {
+        if(educationStatus == EducationStatus.undergraduate){
+            return "undergraduate";
+        } else if(educationStatus == EducationStatus.learning){
+            return "learing";
+        } else {
+            return "graduate";
+        }
+    }
+
     // 學生修改學業狀態（頒發證書）
-    function setCertificate() public checkFinish checkStudent{
+    function setCertificate() public checkFinish{
         educationStatus = EducationStatus.graduate;
         emit done(DoneCode.setCertificate, "Set Certificate");
     }
@@ -155,7 +173,7 @@ contract Certificate {
         
     // 修改個人資料的入學狀態
     function setEducationStatus(EducationStatus newEducationStatus) public checkSchool {
-        profile.educationStatus = newEducationStatus;
+        educationStatus = newEducationStatus;
         emit done(DoneCode.setEducationStatus, "Set EducationStatus");
     }
     

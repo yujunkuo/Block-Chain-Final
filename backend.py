@@ -65,10 +65,26 @@ def get_contract_address(student_id: str):
     cur.execute(command, (student_id, ))
     address_list = cur.fetchall()
     cur.close()
-    address = address_list[0][0]
-    return address
+    contract_address = address_list[0][0]
+    return contract_address
+
+# 透過學號取得姓名與地址
+def get_name_and_address(student_id: str):
+    cur = mysql.connection.cursor()
+    command = "SELECT name, address FROM Student WHERE id = %s"
+    cur.execute(command, (student_id, ))
+    res_list = cur.fetchall()
+    cur.close()
+    name, address = res_list[0]
+    return name, address
 
 ############################################################################
+
+# 主頁 - 導向學生端與學校端
+@app.route("/", methods=["GET"])
+def homepage():
+    return render_template("homepage.html")
+
 
 # 學生端 - 登入
 @app.route("/student/login/", methods=["GET", "POST"])
@@ -97,15 +113,107 @@ def student_login():
 
 
 # 學生端 - 首頁
-@app.route("/student/index/", methods=["GET", "POST"])
+@app.route("/student/index/", methods=["GET"])
 def student_index():
     if not check_student_login():
         return redirect("/student/login/", code=302)
+    data = {"student_id": session.get("student_id")}
+    return render_template("student_index.html", data=data)
+    
+
+# 學生端 - 查看基本資料
+@app.route("/student/info/", methods=["GET"])
+def student_info():
+    if not check_student_login():
+        return redirect("/student/login/", code=302)
+    student_id = session.get("student_id")
+    contract_address = get_contract_address(student_id)
+    student_name, student_address = get_name_and_address(student_id)
+    data = {"student_id": student_id, "student_name": student_name, 
+            "student_address": student_address, "contract_address": contract_address}
+    return render_template("student_info.html", data=data)
+
+
+# 學生端 - 查看修課紀錄
+@app.route("/student/course/", methods=["GET"])
+def student_course():
+    if not check_student_login():
+        return redirect("/student/login/", code=302)
+    student_id = session.get("student_id")
+    contract_address = get_contract_address(student_id)
+    # 先找出該合約（學生）總共修過多少課程
+    course_count = blockchain.get_course_count(contract_address)
+    # 而後逐一取得其課程資訊
+    course_info_list = list()
+    for i in range(course_count):
+        course_info = blockchain.get_course(contract_address, i)
+        course_info_list.append(course_info)
+    data = {"student_id": student_id, "course_info_list": course_info_list}
+    return render_template("student_course.html", data=data)
+
+
+# 學生端 - 檢查是否滿足畢業條件
+@app.route("/student/certificate/", methods=["GET", "POST"])
+def student_certificate():
+    if not check_student_login():
+        return redirect("/student/login/", code=302)
     if request.method == "GET":
-        data = {"student_id": session.get("student_id")}
-        return render_template("student_index.html", data=data)
-
-
+        student_id = session.get("student_id")
+        contract_address = get_contract_address(student_id)
+        # 查看目前學籍狀態
+        education_status = blockchain.get_education_status(contract_address)
+        mapping_dict = {"undergraduate": "肄業", "learing": "在學中", "graduate": "已畢業"}
+        education_status = mapping_dict[education_status]
+        education_status_bool = False if education_status == "已畢業" else True
+        # 檢查該學生是否滿足畢業條件
+        check_finish = blockchain.check_finish_certificate(contract_address)
+        if check_finish:
+            data = {"student_id": student_id, "education_status": education_status,
+                    "education_status_bool": education_status_bool,
+                    "status": "已滿足畢業門檻", "status_bool": check_finish}
+            return render_template("student_certificate.html", data=data)
+        else:
+            data = {"student_id": student_id, "education_status": education_status,
+                    "education_status_bool": education_status_bool,
+                    "status": "尚未滿足畢業門檻", "status_bool": check_finish}
+            return render_template("student_certificate.html", data=data)
+    elif request.method == "POST":
+        try:
+            student_id = session.get("student_id")
+            student_key = request.form.get("student_key")
+            contract_address = get_contract_address(student_id)
+            # 修改學籍狀態（畢業）
+            tx_hash = blockchain.set_certificate(student_key, contract_address)
+            
+            # 查看目前學籍狀態
+            education_status = blockchain.get_education_status(contract_address)
+            mapping_dict = {"undergraduate": "肄業",
+                            "learing": "在學中", "graduate": "已畢業"}
+            education_status = mapping_dict[education_status]
+            education_status_bool = False if education_status == "已畢業" else True
+            # 檢查該學生是否滿足畢業條件
+            check_finish = blockchain.check_finish_certificate(
+                contract_address)
+            if check_finish:
+                data = {"student_id": student_id, "education_status": education_status,
+                        "education_status_bool": education_status_bool,
+                        "status": "已滿足畢業門檻", "status_bool": check_finish}
+            else:
+                data = {"student_id": student_id, "education_status": education_status,
+                        "education_status_bool": education_status_bool,
+                        "status": "尚未滿足畢業門檻", "status_bool": check_finish}
+            if tx_hash:
+                data["suc_msg"] = "修改成功! 恭喜畢業!"
+                data["tx_hash"] = "Hash: " + tx_hash
+                return render_template("student_certificate.html", data=data)
+            else:
+                data["err_msg"] = "修改失敗!"
+                return render_template("student_certificate.html", data=data)
+        except:
+            data["err_msg"] = "修改失敗!"
+            return render_template("student_certificate.html", data=data)
+        
+        
 # 學生端 - 登出
 @app.route("/student/logout/", methods=["GET", "POST"])
 def student_logout():
@@ -142,13 +250,12 @@ def school_login():
 
 
 # 學校端 - 首頁
-@app.route("/school/index/", methods=["GET", "POST"])
+@app.route("/school/index/", methods=["GET"])
 def school_index():
     if not check_school_login():
         return redirect("/school/login/", code=302)
-    if request.method == "GET":
-        data = {"school_id": session.get("school_id")}
-        return render_template("school_index.html", data=data)
+    data = {"school_id": session.get("school_id")}
+    return render_template("school_index.html", data=data)
 
 
 # 學校端 - 發起新合約
@@ -159,7 +266,7 @@ def school_new():
     if request.method == "GET":
         data = {"school_id": session.get("school_id")}
         return render_template("school_new.html", data=data)
-    if request.method == "POST":
+    elif request.method == "POST":
         try:
             school_id = session.get("school_id")
             school_key = request.form.get("school_private_key")
@@ -201,7 +308,7 @@ def school_upload():
     if request.method == "GET":
         data = {"school_id": session.get("school_id")}
         return render_template("school_upload.html", data=data)
-    if request.method == "POST":
+    elif request.method == "POST":
         try:
             school_id = session.get("school_id")
             school_key = request.form.get("school_private_key")
@@ -212,7 +319,7 @@ def school_upload():
             course_comment = request.form.get("course_comment")
             course_grade = int(request.form.get("course_grade"))
             contract_address = get_contract_address(student_id)
-            # 部署合約
+            # 上傳課程紀錄
             tx_hash = blockchain.set_course(
                 school_key, contract_address, course_name, course_content, course_comment, course_grade)
             if tx_hash:
@@ -236,6 +343,8 @@ def school_upload():
 # 學校端 - 查看學生資訊
 @app.route("/school/view/", methods=["GET"])
 def school_view():
+    if not check_school_login():
+        return redirect("/school/login/", code=302)
     cur = mysql.connection.cursor()
     command = "SELECT id, name, address, contract_address FROM Student"
     cur.execute(command)
@@ -254,46 +363,7 @@ def school_logout():
 
 ############################################################################
 
-@app.route('/second')
-def test():
-    # 測試看看有沒有抓到資料
-    test = ''
-    with conn.cursor() as cursor:
-        # 新增資料SQL語法
-        command = "select * from student_info where student_id = " + studentId
-        print(command)
-        cursor.execute(command)
-        test = cursor.fetchall()
-        # 儲存變更
-        conn.commit()
-    # 列印抓到的資料
-    print(test)
-    test = str(test).replace("(", "")
-    test = test.replace(")", "")
-    test = test.replace("'", "")
-    test = test.split(",")
-
-    name = test[7]
-    major = test[2]
-    grade = test[8]
-    status = test[3]
-    double = test[5]
-    minor = test[6]
-    program = test[4]
-
-    return render_template('second.html', name=name, major=major, grade=grade, status=status, double=double, minor=minor, program=program)
-
-
-#######################################################################
 # Main
 if __name__ == "__main__":
     app.secret_key = 'super secret key'
     app.run(debug=True, port=5000)
-    # Initialize a local account object from the private key of a valid Ethereum node address
-    school_account = w3.eth.account.from_key(
-        "c79bac85d3f376fc47bd2455e288fee85290b71e9d6325da9268a3ed65b3eb0d")
-    student_account = w3.eth.account.from_key(
-        "560cff485cbab1ac6a66fcefa2d13cbd9ee915aabf733dc226a7423c5a09dcf3")
-    # Deploy the smart contract
-    deploy_contract(school_account, student_account,
-                    "王小明", "國立政治大學", "資訊管理學系", "", 106)

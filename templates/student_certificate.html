@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title> 智能合約修課歷程 - 學生端 </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+        @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: rgba(180, 180, 180, .3);
+            background-blend-mode: multiply;
+            background-image: url("{{ '/static/background.png' }}");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        /* Add a dark background color with a little bit see-through */
+        .navbar {
+            background-color: #e8ebed;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 0;
+            border: 0;
+            border-radius: 0;
+            font-size: 20px !important;
+            letter-spacing: 2px;
+            opacity: 1;
+            /* 0.9 if we need transparency */
+        }
+
+        .navbar-nav li a:hover {
+            color: #1a79bc !important;
+        }
+
+        .dropdown-menu li a {
+            font-size: 18px !important;
+        }
+
+        .navbar-brand {
+            font-size: 22px !important;
+        }
+
+        footer {
+            padding-bottom: 60px;
+            font-size: 16px;
+            color: #969da3;
+        }
+
+        footer .glyphicon {
+            padding-top: 200px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #8db3d9;
+        }
+
+        #main_content {
+            padding-top: 80px;
+            padding-bottom: 20px;
+        }
+
+        .input_label {
+            font-size: 24px;
+        }
+
+        .sub_div {
+            padding-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/student/index/"><b>智能合約修課歷程 - 學生端</b></a>
+                <p class="navbar-text" style="font-size: 20px;"><span class="glyphicon glyphicon-user"></span>
+                    {{ data.student_id }} </p>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li id="new"><a href="/student/info/">查看基本資料</a></li>
+                    <li id="view"><a href="/student/course/">查看修課紀錄</a></li>
+                    <li id="upload"><a href="/student/certificate/">檢核畢業條件</a></li>
+                    <li><a href="/student/logout/">登出</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="main_content" class="">
+            <div class="container-fluid text-nowrap">
+                <div id="main_content">
+                    <!-- add your html code here -->
+                    <div class="header">
+                        <h1 class="text-center"><b> 檢核畢業條件 </b></h1>
+                    </div>
+                    <div class="sub_div">
+                        <div class="row">
+                            <div class="col-sm-4"></div>
+                            <div class="col-sm-4">
+                                <form onsubmit="return confirm('是否確定將學籍狀態轉換為「已畢業」?');" class=""
+                                    action="/student/certificate/" method="post">
+                                    <label class="input_label" style="padding-top: 10px;"> 學籍狀態 : </label><br>
+                                    <label class="input_label text-success" style="padding-bottom: 40px; padding-top: 10px;"> {{
+                                        data.education_status }} </label><br>
+                                    {% if data.status_bool %}
+                                    <label class="input_label" style="padding-top: 0px;"> 畢業門檻 : </label><br>
+                                    <label class="input_label text-success" style="padding-bottom: 20px; padding-top: 10px;"> {{
+                                        data.status }} </label><br><br>
+                                    {% else %}
+                                    <label class="input_label" style="padding-top: 0px;"> 畢業門檻 : </label><br>
+                                    <label class="input_label text-warning" style="padding-bottom: 20px; padding-top: 10px;"> {{
+                                        data.status }} </label><br><br>
+                                    {% endif %}
+                                    <div class="form-group" style="padding-bottom: 10px;">
+                                        <label class="input_label"> 學生私鑰 : </label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i
+                                                    class="glyphicon glyphicon-lock"></i></span>
+                                            {% if data.status_bool and data.education_status_bool %}
+                                            <input type="text" class="form-control input-lg" name="student_key"
+                                                id="student_key" value="" placeholder="Student Key"
+                                                required autofocus><br>
+                                            {% else %}
+                                            <input type="text" class="form-control input-lg" name="student_key"
+                                                id="student_key" value="" placeholder="Student Key"
+                                                required autofocus disabled><br>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% if data.status_bool and data.education_status_bool %}
+                                        <input type="submit" class="btn btn-success btn-lg btn-block" value="確認畢業"><br>
+                                    {% else %}
+                                        <input type="submit" class="btn btn-success btn-lg btn-block" value="確認畢業" disabled><br>
+                                    {% endif %}
+                                    <label class="text-success" style="font-size: 20px;"> {{ data.suc_msg }}
+                                    </label><br>
+                                    <label class="text-success" style="font-size: 20px;"> {{ data.tx_hash }}
+                                    </label>
+                                    <label class="text-danger" style="font-size: 20px;"> {{ data.err_msg }} </label>
+                                </form>
+                            </div>
+                            <div class="col-sm-4"></div>
+                        </div>
+                    </div>
+                    <!-- finish -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

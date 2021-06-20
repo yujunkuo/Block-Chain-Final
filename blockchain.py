@@ -61,3 +61,45 @@ class Blockchain:
             construct_txn, school_account.key)
         tx_hash = self.w3.eth.sendRawTransaction(signed.rawTransaction)
         return tx_hash.hex()
+    
+    # 查詢某合約中存放的課程數量
+    def get_course_count(self, contract_address: str):
+        contract_instance = self.w3.eth.contract(
+            abi=self.ABI, address=contract_address)
+        course_count = contract_instance.functions.getCourseCount().call()
+        return course_count
+    
+    # 查詢某 index 位置的課程資訊
+    def get_course(self, contract_address: str, index: int):
+        contract_instance = self.w3.eth.contract(
+            abi=self.ABI, address=contract_address)
+        course_info = contract_instance.functions.getCourse(index).call()
+        return course_info
+
+    # 檢查該學生是否滿足畢業條件
+    def check_finish_certificate(self, contract_address: str):
+        contract_instance = self.w3.eth.contract(
+            abi=self.ABI, address=contract_address)
+        check_finish = contract_instance.functions.checkFinishCertificate().call()
+        return check_finish
+    
+    # 查看目前學籍狀態
+    def get_education_status(self, contract_address: str):
+        contract_instance = self.w3.eth.contract(
+            abi=self.ABI, address=contract_address)
+        education_status = contract_instance.functions.getEducationStatus().call()
+        return education_status
+    
+    # 修改學籍狀態（畢業）
+    def set_certificate(self, student_key: str, contract_address: str):
+        contract_instance = self.w3.eth.contract(
+            abi=self.ABI, address=contract_address)
+        student_account = self.w3.eth.account.from_key(student_key)
+        construct_txn = contract_instance.functions.setCertificate().buildTransaction({
+            'from': student_account.address,
+            'nonce': self.w3.eth.getTransactionCount(student_account.address),
+        })
+        signed = self.w3.eth.account.sign_transaction(
+            construct_txn, student_account.key)
+        tx_hash = self.w3.eth.sendRawTransaction(signed.rawTransaction)
+        return tx_hash.hex()
