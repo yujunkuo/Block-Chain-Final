@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title> 智能合約修課歷程 - 學生端 </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+        @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: rgba(180, 180, 180, .3);
+            background-blend-mode: multiply;
+            background-image: url("{{ '/static/background.png' }}");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        .container-fluid {
+            padding-top: 180px;
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        .header {
+            padding-bottom: 3%;
+        }
+
+        .form-group {
+            padding-bottom: 16px;
+        }
+
+        .input_label {
+            font-size: 24px;
+        }
+
+        h1 {
+            font-size: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="header">
+            <h1 class="text-center"><b> 智能合約修課歷程 - 學生端 </b></h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+            </div>
+            <div class="col-sm-4">
+                <form class="" action="/student/login/" method="post">
+                    <div class="form-group">
+                        <label class="input_label"> 帳號 : </label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" class="form-control input-lg" name="student_id" id="student_id" value=""
+                                placeholder="Student ID" required autofocus style="font-family: sans-serif;"><br>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="input_label"> 密碼 : </label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                            <input type="password" class="form-control input-lg" name="password" id="password" value=""
+                                placeholder="Password" required style="font-family: sans-serif;"><br>
+                        </div>
+                    </div>
+                    <input type="submit" class="btn btn-default btn-lg pull-right" name="" value="登入">
+                    <label class="text-danger"> {{ data.err_msg }} </label>
+                </form>
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
